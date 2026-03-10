@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { Rnd } from "react-rnd";
 import Link from "next/link";
 import { useReadingList } from "@/app/context/ReadingListContext";
@@ -263,7 +263,7 @@ export default function EditorPage() {
                     y: pos.y,
                   })
                 }
-                onClick={(e) => {
+                onClick={(e: MouseEvent) => {
                   e.stopPropagation();
                   setSelectedId(el.id);
                 }}
