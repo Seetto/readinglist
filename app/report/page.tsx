@@ -126,7 +126,7 @@ export default function ReportPage() {
         </Link>
         <div className="flex items-center gap-3">
           <Link
-            href="/editor"
+            href="/editor?from=report"
             className="hidden rounded-lg border border-stone-300 bg-white/80 px-3 py-1.5 text-xs font-medium text-muted hover:bg-stone-50 md:inline-block"
           >
             Open design editor

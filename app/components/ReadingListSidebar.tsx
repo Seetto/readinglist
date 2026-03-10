@@ -73,7 +73,7 @@ export function ReadingListSidebar() {
               Generate report
             </Link>
             <Link
-              href="/editor"
+              href="/editor?from=report"
               className="block w-full rounded-lg border border-accent/40 bg-white px-4 py-2 text-center text-xs font-medium text-accent hover:bg-accent/5"
             >
               Open design editor (beta)
