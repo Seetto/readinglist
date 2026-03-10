@@ -65,12 +65,20 @@ export function ReadingListSidebar() {
           </ul>
         )}
         {books.length > 0 && (
-          <Link
-            href="/report"
-            className="block w-full rounded-lg bg-accent px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-accent/90"
-          >
-            Generate report
-          </Link>
+          <div className="space-y-2 pt-1">
+            <Link
+              href="/report"
+              className="block w-full rounded-lg bg-accent px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-accent/90"
+            >
+              Generate report
+            </Link>
+            <Link
+              href="/editor"
+              className="block w-full rounded-lg border border-accent/40 bg-white px-4 py-2 text-center text-xs font-medium text-accent hover:bg-accent/5"
+            >
+              Open design editor (beta)
+            </Link>
+          </div>
         )}
       </div>
     </aside>
