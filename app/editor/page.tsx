@@ -3,7 +3,6 @@
 import { useEffect, useState, type MouseEvent } from "react";
 import { Rnd } from "react-rnd";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useReadingList } from "@/app/context/ReadingListContext";
 
 type ElementType = "text" | "shape" | "image";
@@ -237,11 +236,17 @@ function buildElementsFromReport(
 export default function EditorPage() {
   const list = useReadingList();
   const { books } = list;
-  const searchParams = useSearchParams();
-  const fromReport = searchParams.get("from") === "report";
+  const [fromReport, setFromReport] = useState(false);
   const [elements, setElements] = useState<CanvasElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState<string>("#fff7f0");
+
+  // Determine if we were opened from the report page
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setFromReport(params.get("from") === "report");
+  }, []);
 
   // Load saved design (unless we're explicitly importing from the report)
   useEffect(() => {
