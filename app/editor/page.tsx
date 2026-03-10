@@ -94,14 +94,14 @@ function buildElementsFromReport(
     id: createId(),
     type: "text",
     x: 80,
-    y: 70,
+    y: 60,
     width: 420,
     height: 90,
     text: merged.coverTitle ?? defaultReportMeta.coverTitle!,
     fontSize: fontSizeFromPreset(merged.coverTitleSize),
     fontFamily: "serif",
     fontWeight: "bold",
-    color: "#0b1035",
+    color: "#ffffff",
     align: "left",
   } as TextElement);
 
@@ -110,14 +110,14 @@ function buildElementsFromReport(
     id: createId(),
     type: "text",
     x: 80,
-    y: 150,
+    y: 140,
     width: 520,
     height: 170,
     text: merged.coverIntro ?? defaultReportMeta.coverIntro!,
     fontSize: 14,
     fontFamily: "sans",
     fontWeight: "normal",
-    color: "#3d3040",
+    color: "#f3e7ff",
     align: "left",
   } as TextElement);
 
@@ -452,7 +452,7 @@ export default function EditorPage() {
         {/* Canvas */}
         <main className="relative flex-1 overflow-auto rounded-xl border border-stone-200 bg-stone-100">
           <div
-            className="relative mx-auto my-6 h-[700px] w-[900px] max-w-full"
+            className="relative mx-auto my-6 h-[900px] w-[900px] max-w-full"
             style={{ backgroundColor: bgColor }}
           >
             {elements.map((el) => (
