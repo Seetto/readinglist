@@ -5,8 +5,14 @@ import Link from "next/link";
 import { useReadingList } from "@/app/context/ReadingListContext";
 import { useEffect, useState } from "react";
 
+type FontSizePreset = "sm" | "md" | "lg";
+
 type ReportMeta = {
+  coverTitle: string;
+  coverTitleSize: FontSizePreset;
+  coverIntro: string;
   yearGroupTitle: string;
+  yearGroupTitleSize: FontSizePreset;
   listTitle: string;
   listSubtitle: string;
   listDescription: string;
@@ -15,11 +21,28 @@ type ReportMeta = {
 const META_STORAGE_KEY = "readinglist-report-meta-v1";
 
 const defaultMeta: ReportMeta = {
+  coverTitle: "READING LISTS",
+  coverTitleSize: "lg",
+  coverIntro:
+    "Our reading lists serve as a recommended reading guide, highlighting high-quality, engaging books that broaden perspectives, build critical thinking skills, and strengthen the literacy foundations that underpin academic success across all subject areas.\n\nThese lists have been mindfully created and curated to inspire a love of reading for life and to support students as they grow as readers.\n\nHappy reading!",
   yearGroupTitle: "LOWER SECONDARY",
+  yearGroupTitleSize: "md",
   listTitle: "TRADITIONAL CLASSICS",
   listSubtitle: "YEAR 7 – 9",
   listDescription:
     "A traditional classic is a book that has been written in the past, yet has remained meaningful across time. These books endure because they explore shared human experiences — friendship, courage, change, and hope — and continue to resonate with new readers. Use this list to introduce students to timeless stories that invite reflection, spark conversation, and build a love of reading.",
+};
+
+const COVER_TITLE_CLASSES: Record<FontSizePreset, string> = {
+  sm: "text-3xl md:text-4xl",
+  md: "text-4xl md:text-5xl",
+  lg: "text-5xl md:text-6xl",
+};
+
+const BAND_TITLE_CLASSES: Record<FontSizePreset, string> = {
+  sm: "text-[0.65rem]",
+  md: "text-xs",
+  lg: "text-sm",
 };
 
 export default function ReportPage() {
@@ -113,20 +136,92 @@ export default function ReportPage() {
       </div>
 
       {showEditor && (
-        <div className="no-print mb-8 rounded-xl border border-stone-200 bg-white/80 p-4 space-y-4">
+        <div className="no-print mb-8 rounded-xl border border-stone-200 bg-white/80 p-4 space-y-6">
+          {/* Cover section */}
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div>
+              <label className="block text-xs font-semibold text-muted uppercase tracking-[0.18em]">
+                Cover title
+              </label>
+              <input
+                type="text"
+                value={meta.coverTitle}
+                onChange={(e) =>
+                  setMeta((m) => ({ ...m, coverTitle: e.target.value }))
+                }
+                className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-muted uppercase tracking-[0.18em]">
+                Cover title size
+              </label>
+              <select
+                value={meta.coverTitleSize}
+                onChange={(e) =>
+                  setMeta((m) => ({
+                    ...m,
+                    coverTitleSize: e.target.value as FontSizePreset,
+                  }))
+                }
+                className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-xs"
+              >
+                <option value="sm">Small</option>
+                <option value="md">Medium</option>
+                <option value="lg">Large</option>
+              </select>
+            </div>
+          </div>
           <div>
             <label className="block text-xs font-semibold text-muted uppercase tracking-[0.18em]">
-              Year group heading
+              Intro text on cover
             </label>
-            <input
-              type="text"
-              value={meta.yearGroupTitle}
+            <textarea
+              value={meta.coverIntro}
               onChange={(e) =>
-                setMeta((m) => ({ ...m, yearGroupTitle: e.target.value }))
+                setMeta((m) => ({ ...m, coverIntro: e.target.value }))
               }
+              rows={5}
               className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
             />
           </div>
+
+          {/* Year group + list settings */}
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div>
+              <label className="block text-xs font-semibold text-muted uppercase tracking-[0.18em]">
+                Year group heading
+              </label>
+              <input
+                type="text"
+                value={meta.yearGroupTitle}
+                onChange={(e) =>
+                  setMeta((m) => ({ ...m, yearGroupTitle: e.target.value }))
+                }
+                className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-muted uppercase tracking-[0.18em]">
+                Year group heading size
+              </label>
+              <select
+                value={meta.yearGroupTitleSize}
+                onChange={(e) =>
+                  setMeta((m) => ({
+                    ...m,
+                    yearGroupTitleSize: e.target.value as FontSizePreset,
+                  }))
+                }
+                className="mt-1 w-full rounded-lg border border-stone-300 px-3 py-2 text-xs"
+              >
+                <option value="sm">Small</option>
+                <option value="md">Medium</option>
+                <option value="lg">Large</option>
+              </select>
+            </div>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-xs font-semibold text-muted uppercase tracking-[0.18em]">
@@ -176,8 +271,36 @@ export default function ReportPage() {
         id="report-print-area"
         className="overflow-hidden rounded-xl bg-[#0b1035] text-white shadow-md"
       >
+        {/* Cover / intro section */}
+        <section className="bg-white text-[#0b1035]">
+          <div className="grid gap-6 px-6 pt-10 pb-8 md:grid-cols-2">
+            <div className="flex flex-col justify-center">
+              <h1
+                className={`font-serif font-bold tracking-[0.18em] ${COVER_TITLE_CLASSES[meta.coverTitleSize]}`}
+              >
+                {meta.coverTitle}
+              </h1>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="h-40 w-40 rounded-full border-[6px] border-[#f7aecd] bg-[#f7aecd]/40 md:h-52 md:w-52" />
+            </div>
+          </div>
+          <div className="grid gap-6 bg-[#f7aecd]/60 px-6 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+            <div className="flex items-center justify-center">
+              <div className="h-32 w-24 rounded-lg bg-[#0b1035] shadow-lg" />
+            </div>
+            <p className="text-sm leading-relaxed text-[#3d3040] whitespace-pre-wrap">
+              {meta.coverIntro}
+            </p>
+          </div>
+        </section>
+
         {/* Top band with year group title */}
-        <header className="bg-[#f7aecd] px-6 py-4 text-center uppercase tracking-[0.35em] text-xs font-semibold text-[#0b1035]">
+        <header
+          className={`bg-[#f7aecd] px-6 py-4 text-center uppercase tracking-[0.35em] font-semibold text-[#0b1035] ${
+            BAND_TITLE_CLASSES[meta.yearGroupTitleSize]
+          }`}
+        >
           {meta.yearGroupTitle || "READING LIST"}
         </header>
 
