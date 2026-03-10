@@ -3,6 +3,7 @@
 import { useEffect, useState, type MouseEvent } from "react";
 import { Rnd } from "react-rnd";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useReadingList } from "@/app/context/ReadingListContext";
 
 type ElementType = "text" | "shape" | "image";
@@ -44,20 +45,208 @@ type ImageElement = CanvasElementBase & {
 type CanvasElement = TextElement | ShapeElement | ImageElement;
 
 const STORAGE_KEY = "readinglist-editor-v1";
+const REPORT_META_KEY = "readinglist-report-meta-v1";
+
+type FontSizePreset = "sm" | "md" | "lg";
+
+type ReportMetaSnapshot = {
+  coverTitle?: string;
+  coverTitleSize?: FontSizePreset;
+  coverIntro?: string;
+  yearGroupTitle?: string;
+  yearGroupTitleSize?: FontSizePreset;
+  listTitle?: string;
+  listSubtitle?: string;
+  listDescription?: string;
+};
+
+const defaultReportMeta: ReportMetaSnapshot = {
+  coverTitle: "READING LISTS",
+  coverTitleSize: "lg",
+  coverIntro:
+    "Our reading lists serve as a recommended reading guide, highlighting high-quality, engaging books that broaden perspectives, build critical thinking skills, and strengthen the literacy foundations that underpin academic success across all subject areas.\n\nThese lists have been mindfully created and curated to inspire a love of reading for life and to support students as they grow as readers.\n\nHappy reading!",
+  yearGroupTitle: "LOWER SECONDARY",
+  yearGroupTitleSize: "md",
+  listTitle: "TRADITIONAL CLASSICS",
+  listSubtitle: "YEAR 7 – 9",
+  listDescription:
+    "A traditional classic is a book that has been written in the past, yet has remained meaningful across time. These books endure because they explore shared human experiences — friendship, courage, change, and hope — and continue to resonate with new readers.",
+};
 
 function createId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+function fontSizeFromPreset(preset: FontSizePreset | undefined): number {
+  if (preset === "sm") return 28;
+  if (preset === "md") return 36;
+  return 44;
+}
+
+function buildElementsFromReport(
+  meta: ReportMetaSnapshot,
+  books: ReturnType<typeof useReadingList>["books"]
+): CanvasElement[] {
+  const merged: ReportMetaSnapshot = { ...defaultReportMeta, ...meta };
+  const elements: CanvasElement[] = [];
+
+  // Cover title
+  elements.push({
+    id: createId(),
+    type: "text",
+    x: 80,
+    y: 70,
+    width: 420,
+    height: 90,
+    text: merged.coverTitle ?? defaultReportMeta.coverTitle!,
+    fontSize: fontSizeFromPreset(merged.coverTitleSize),
+    fontFamily: "serif",
+    fontWeight: "bold",
+    color: "#0b1035",
+    align: "left",
+  } as TextElement);
+
+  // Cover intro
+  elements.push({
+    id: createId(),
+    type: "text",
+    x: 80,
+    y: 150,
+    width: 520,
+    height: 170,
+    text: merged.coverIntro ?? defaultReportMeta.coverIntro!,
+    fontSize: 14,
+    fontFamily: "sans",
+    fontWeight: "normal",
+    color: "#3d3040",
+    align: "left",
+  } as TextElement);
+
+  // Year group heading
+  elements.push({
+    id: createId(),
+    type: "text",
+    x: 80,
+    y: 340,
+    width: 360,
+    height: 40,
+    text: merged.yearGroupTitle ?? defaultReportMeta.yearGroupTitle!,
+    fontSize:
+      merged.yearGroupTitleSize === "sm"
+        ? 14
+        : merged.yearGroupTitleSize === "md"
+        ? 18
+        : 20,
+    fontFamily: "sans",
+    fontWeight: "bold",
+    color: "#f7aecd",
+    align: "left",
+  } as TextElement);
+
+  // List title + subtitle
+  elements.push({
+    id: createId(),
+    type: "text",
+    x: 80,
+    y: 380,
+    width: 420,
+    height: 40,
+    text: merged.listTitle ?? defaultReportMeta.listTitle!,
+    fontSize: 20,
+    fontFamily: "serif",
+    fontWeight: "bold",
+    color: "#ffffff",
+    align: "left",
+  } as TextElement);
+
+  if (merged.listSubtitle) {
+    elements.push({
+      id: createId(),
+      type: "text",
+      x: 80,
+      y: 415,
+      width: 300,
+      height: 30,
+      text: merged.listSubtitle,
+      fontSize: 13,
+      fontFamily: "sans",
+      fontWeight: "normal",
+      color: "#ffffff",
+      align: "left",
+    } as TextElement);
+  }
+
+  // List description
+  if (merged.listDescription) {
+    elements.push({
+      id: createId(),
+      type: "text",
+      x: 80,
+      y: 450,
+      width: 520,
+      height: 150,
+      text: merged.listDescription,
+      fontSize: 13,
+      fontFamily: "sans",
+      fontWeight: "normal",
+      color: "#f3e7ff",
+      align: "left",
+    } as TextElement);
+  }
+
+  // First few books on the right side
+  const maxBooks = 3;
+  const baseX = 630;
+  const baseY = 120;
+  const verticalGap = 140;
+
+  books.slice(0, maxBooks).forEach((book, index) => {
+    const y = baseY + index * verticalGap;
+    if (book.coverUrl) {
+      elements.push({
+        id: createId(),
+        type: "image",
+        x: baseX,
+        y,
+        width: 120,
+        height: 170,
+        src: book.coverUrl,
+        alt: book.title,
+        borderRadius: 10,
+      } as ImageElement);
+    }
+    elements.push({
+      id: createId(),
+      type: "text",
+      x: baseX - 10,
+      y: y + 180,
+      width: 200,
+      height: 60,
+      text: book.title,
+      fontSize: 14,
+      fontFamily: "serif",
+      fontWeight: "bold",
+      color: "#ffffff",
+      align: "left",
+    } as TextElement);
+  });
+
+  return elements;
+}
+
 export default function EditorPage() {
-  const { books } = useReadingList();
+  const list = useReadingList();
+  const { books } = list;
+  const searchParams = useSearchParams();
+  const fromReport = searchParams.get("from") === "report";
   const [elements, setElements] = useState<CanvasElement[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState<string>("#fff7f0");
 
-  // Load saved design
+  // Load saved design (unless we're explicitly importing from the report)
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (fromReport) return;
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
@@ -70,7 +259,22 @@ export default function EditorPage() {
     } catch {
       // ignore
     }
-  }, []);
+  }, [fromReport]);
+
+  // Import layout from report meta when arriving from /report
+  useEffect(() => {
+    if (!fromReport) return;
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(REPORT_META_KEY);
+      const meta = raw ? (JSON.parse(raw) as ReportMetaSnapshot) : {};
+      const initial = buildElementsFromReport(meta, books);
+      setElements(initial);
+      setBgColor("#0b1035");
+    } catch {
+      // ignore
+    }
+  }, [fromReport, books]);
 
   // Persist design
   useEffect(() => {
