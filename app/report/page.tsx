@@ -96,6 +96,13 @@ export default function ReportPage() {
     dateStyle: "long",
   });
 
+  const openEditor = () => {
+    setShowEditor(true);
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   if (books.length === 0) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-12">
@@ -274,7 +281,10 @@ export default function ReportPage() {
         {/* Cover / intro section */}
         <section className="bg-white text-[#0b1035]">
           <div className="grid gap-6 px-6 pt-10 pb-8 md:grid-cols-2">
-            <div className="flex flex-col justify-center">
+            <div
+              className="flex flex-col justify-center cursor-pointer"
+              onClick={openEditor}
+            >
               <h1
                 className={`font-serif font-bold tracking-[0.18em] ${COVER_TITLE_CLASSES[meta.coverTitleSize]}`}
               >
@@ -287,7 +297,11 @@ export default function ReportPage() {
           </div>
           <div className="grid gap-6 bg-[#f7aecd]/60 px-6 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
             <div className="flex items-center justify-center">
-              <div className="h-32 w-24 rounded-lg bg-[#0b1035] shadow-lg" />
+              <button
+                type="button"
+                className="h-32 w-24 rounded-lg bg-[#0b1035] shadow-lg cursor-pointer"
+                onClick={openEditor}
+              />
             </div>
             <p className="text-sm leading-relaxed text-[#3d3040] whitespace-pre-wrap">
               {meta.coverIntro}
@@ -297,9 +311,10 @@ export default function ReportPage() {
 
         {/* Top band with year group title */}
         <header
-          className={`bg-[#f7aecd] px-6 py-4 text-center uppercase tracking-[0.35em] font-semibold text-[#0b1035] ${
+          className={`bg-[#f7aecd] px-6 py-4 text-center uppercase tracking-[0.35em] font-semibold text-[#0b1035] cursor-pointer ${
             BAND_TITLE_CLASSES[meta.yearGroupTitleSize]
           }`}
+          onClick={openEditor}
         >
           {meta.yearGroupTitle || "READING LIST"}
         </header>
@@ -324,7 +339,10 @@ export default function ReportPage() {
         </section>
 
         {/* List write-up block */}
-        <section className="border-b border-[#f7aecd]/30 bg-[#0b1035] px-6 py-8 md:px-10">
+        <section
+          className="border-b border-[#f7aecd]/30 bg-[#0b1035] px-6 py-8 md:px-10 cursor-pointer"
+          onClick={openEditor}
+        >
           <div className="flex flex-col gap-6 md:flex-row">
             <div className="md:w-1/3">
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#f7aecd]">
@@ -365,7 +383,8 @@ export default function ReportPage() {
             return (
               <section
                 key={book.id}
-                className={sectionBase + sectionColors}
+                className={sectionBase + sectionColors + " cursor-pointer"}
+                onClick={openEditor}
               >
                 <div className="shrink-0 md:basis-1/3">
                   <div className="mx-auto h-40 w-28 overflow-hidden rounded-lg border border-black/10 bg-black/10 md:mx-0 md:h-52 md:w-36">
